@@ -16,7 +16,8 @@ from PySide6.QtWidgets import (
     QHBoxLayout,
     QDockWidget,
     QVBoxLayout,
-    QPushButton
+    QPushButton,
+    QLineEdit
 
 
 
@@ -29,11 +30,28 @@ class Ventana (QMainWindow):
     def __init__(self):
         super().__init__()
 
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+
+        icon_nuevo = QIcon(os.path.join(base_dir, "nuevo.png"))
+        icon_abrir = QIcon(os.path.join(base_dir, "abrir.png"))
+        icon_guardar = QIcon(os.path.join(base_dir, "guardar.png"))
+        icon_salir = QIcon(os.path.join(base_dir, "salir.png"))
+        icon_deshacer = QIcon(os.path.join(base_dir, "deshacer.png"))
+        icon_rehacer = QIcon(os.path.join(base_dir, "rehacer.png"))
+        icon_copiar = QIcon(os.path.join(base_dir, "copiar.png"))
+        icon_cortar = QIcon(os.path.join(base_dir, "cortar.png"))
+        icon_pegar = QIcon(os.path.join(base_dir, "pegar.png"))
+        icon_panel_buscar = QIcon(os.path.join(base_dir, "buscar.png"))
+        icon_reemplazar = QIcon(os.path.join(base_dir, "reemplazar.png"))
+
         self.texto = QTextEdit()
         self.setCentralWidget(self.texto)
+        self.ultimaBusqueda = ""
 
         self.barraTarea = QToolBar()
         self.addToolBar(self.barraTarea)
+        self.barraTarea.setToolButtonStyle(
+            Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
 
         self.barraEstado = QStatusBar()
         self.setStatusBar(self.barraEstado)
@@ -48,18 +66,63 @@ class Ventana (QMainWindow):
         self.buscarOpciones = QDockWidget("Buscar")
         self.buscarOpciones.setAllowedAreas(Qt.RightDockWidgetArea)
         self.reemplazarOpciones = QDockWidget("Reemplazar")
+        self.reemplazarOpciones.setAllowedAreas(Qt.RightDockWidgetArea)
 
-        self.btnBuscar = QPushButton("Buscar una palabra")
+        self.buscarPanel = QLineEdit()
+        self.buscarPanel.setPlaceholderText("Texto a buscar")
+        self.buscarPanel.textChanged.connect(self.actualizaBusqueda)
+
+        # self.btnBuscar = QPushButton("Buscar una palabra")
+        # self.btnBuscar.clicked.connect(self.buscar)
         self.btnBuscarTodas = QPushButton("Buscar todas las palabras")
+        self.btnBuscarTodas.clicked.connect(self.buscarTodas)
+        self.btnSiguiente = QPushButton("Siguiente")
+        self.btnSiguiente.clicked.connect(self.siguientePalabra)
+        self.btnAnterior = QPushButton("Anterior")
+        self.btnAnterior.clicked.connect(self.anteriorPalabra)
+
         self.contenedorBuscar = QWidget()
 
         self.buscarOpciones.setWidget(self.contenedorBuscar)
 
         self.layout = QVBoxLayout(self.contenedorBuscar)
-        self.layout.addWidget(self.btnBuscar)
+        self.layout.addWidget(QLabel("Buscar:"))
+        self.layout.addWidget(self.buscarPanel)
+
+        navBox = QWidget()
+        navLay = QHBoxLayout(navBox)
+        navLay.setContentsMargins(0, 0, 0, 0)
+        navLay.addWidget(self.btnAnterior)
+        navLay.addWidget(self.btnSiguiente)
+        self.layout.addWidget(navBox)
+        # self.layout.addWidget(self.btnBuscar)
         self.layout.addWidget(self.btnBuscarTodas)
 
         self.addDockWidget(Qt.RightDockWidgetArea, self.buscarOpciones)
+        self.buscarOpciones.hide()
+
+        self.busquedaPanel = QLineEdit()
+        self.busquedaPanel.setPlaceholderText("Texto a buscar")
+        self.inpReemplazar = QLineEdit()
+        self.inpReemplazar.setPlaceholderText("Reemplazar por")
+
+        self.btnReemplazar = QPushButton("Reemplazar siguiente")
+        self.btnReemplazar.clicked.connect(self.reemplazarSiguiente)
+        self.btnReemplazarTodos = QPushButton("Reemplazar todos")
+        self.btnReemplazarTodos.clicked.connect(self.reemplazarTodos)
+
+        contenedorReemplazar = QWidget()
+        layRe = QVBoxLayout(contenedorReemplazar)
+        layRe.addWidget(QLabel("Buscar:"))
+        layRe.addWidget(self.busquedaPanel)
+        layRe.addWidget(QLabel("Reemplazar por:"))
+        layRe.addWidget(self.inpReemplazar)
+        layRe.addWidget(self.btnReemplazar)
+        layRe.addWidget(self.btnReemplazarTodos)
+
+        self.reemplazarOpciones.setWidget(contenedorReemplazar)
+        self.addDockWidget(Qt.RightDockWidgetArea, self.reemplazarOpciones)
+        self.reemplazarOpciones.hide()
 
         # Izquierda: contador (elástico)
         self.palabrasContador = QLabel("Palabras: 0")
@@ -81,18 +144,22 @@ class Ventana (QMainWindow):
         self.accionNuevo = QAction("Nuevo", self)
         self.accionNuevo.setShortcut(QKeySequence("Ctrl+N"))
         self.accionNuevo.triggered.connect(self.nuevo)
+        self.accionNuevo.setIcon(icon_nuevo)
 
         self.accionAbrir = QAction("Abrir")
         self.accionAbrir.setShortcut(QKeySequence("Ctrl+O"))
         self.accionAbrir.triggered.connect(self.abrir)
+        self.accionAbrir.setIcon(icon_abrir)
 
         self.accionGuardar = QAction("Guardar")
         self.accionGuardar.setShortcut(QKeySequence("Ctrl+S"))
         self.accionGuardar.triggered.connect(self.guardar)
+        self.accionGuardar.setIcon(icon_guardar)
 
         self.accionSalir = QAction("Salir")
         self.accionSalir.setShortcut(QKeySequence("Ctrl+Q"))
         self.accionSalir.triggered.connect(self.salir)
+        self.accionSalir.setIcon(icon_salir)
 
         menuArchivo.addActions([
             self.accionNuevo,
@@ -106,22 +173,27 @@ class Ventana (QMainWindow):
         self.accionDeshacer = QAction("Deshacer", self)
         self.accionDeshacer.setShortcut(QKeySequence("Ctrl+Z"))
         self.accionDeshacer.triggered.connect(self.deshacer)
+        self.accionDeshacer.setIcon(icon_deshacer)
 
         self.accionRehacer = QAction("Rehacer", self)
         self.accionRehacer.setShortcut(QKeySequence("Ctrl+Y"))
         self.accionRehacer.triggered.connect(self.rehacer)
+        self.accionRehacer.setIcon(icon_rehacer)
 
         self.accionCopiar = QAction("Copiar", self)
         self.accionCopiar.setShortcut(QKeySequence("Ctrl+C"))
         self.accionCopiar.triggered.connect(self.copiar)
+        self.accionCopiar.setIcon(icon_copiar)
 
         self.accionCortar = QAction("Cortar", self)
         self.accionCortar.setShortcut(QKeySequence("Ctrl+X"))
         self.accionCortar.triggered.connect(self.cortar)
+        self.accionCortar.setIcon(icon_cortar)
 
         self.accionPegar = QAction("Pegar", self)
         self.accionPegar.setShortcut(QKeySequence("Ctrl+V"))
         self.accionPegar.triggered.connect(self.pegar)
+        self.accionPegar.setIcon(icon_pegar)
 
         menuEditar.addActions([
             self.accionDeshacer,
@@ -154,13 +226,33 @@ class Ventana (QMainWindow):
         self.accionBuscar.setShortcut(QKeySequence("Ctrl+F"))
         self.accionBuscar.triggered.connect(self.buscar)
 
+        self.accionBuscarTodas = QAction("Buscar todas", self)
+        self.accionBuscarTodas.triggered.connect(self.buscarTodas)
+
         self.accionReemplazar = QAction("Reemplazar", self)
         self.accionReemplazar.setShortcut(QKeySequence("Ctrl+R"))
         self.accionReemplazar.triggered.connect(self.reemplazar)
 
         self.accionPanelBuscar = QAction("Mostrar panel de busqueda")
-        self.accionPanelBuscar.triggered.connect(
-            self.buscarOpciones.setVisible)
+        self.accionPanelBuscar.triggered.connect(self.mostrarPanelBuscar)
+        self.accionPanelBuscar.setIcon(icon_panel_buscar)
+
+        self.accionPanelReemplazar = QAction(
+            "Mostrar panel de reemplazo", self)
+        self.accionPanelReemplazar.triggered.connect(
+            self.mostrarPanelReemplazar)
+        self.accionPanelReemplazar.setIcon(icon_reemplazar)
+
+        # Acciones de navegación (atajos)
+        self.accionSiguiente = QAction("Siguiente coincidencia", self)
+        self.accionSiguiente.setShortcut(QKeySequence("F3"))
+        self.accionSiguiente.triggered.connect(self.siguientePalabra)
+        self.addAction(self.accionSiguiente)
+
+        self.accionAnterior = QAction("Anterior coincidencia", self)
+        self.accionAnterior.setShortcut(QKeySequence("Shift+F3"))
+        self.accionAnterior.triggered.connect(self.anteriorPalabra)
+        self.addAction(self.accionAnterior)
 
         self.barraTarea.addActions([
 
@@ -174,6 +266,7 @@ class Ventana (QMainWindow):
             self.accionCortar,
             self.accionPegar,
             self.accionPanelBuscar,
+            self.accionPanelReemplazar,
             self.accionReemplazar
 
         ])
@@ -272,34 +365,42 @@ class Ventana (QMainWindow):
         else:
             self.operaciones.setText(f"Buscando 🔎 '{palabra}'")
             self.barraEstado.showMessage(f"Encontrado: '{palabra}'", 3000)
+        # Guardar y reflejar término en panel
+        self.ultimaBusqueda = palabra
+        if hasattr(self, 'busquedaPanelPanel'):
+            self.busquedaPanel.setText(palabra)
 
     def reemplazar(self):
-        self.texto.moveCursor(QTextCursor.MoveOperation.Start)
-
+        # Reemplazar (dialog) - hace un reemplazo del siguiente encontrado
         palabra, ok = QInputDialog.getText(
-            self, "Buscar", "Que palabra quieres reemplazar:")
-        if not palabra or not ok:
+            self, "Reemplazar", "Palabra a buscar:")
+        if not ok or not palabra:
+            return
+        nueva, ok2 = QInputDialog.getText(
+            self, "Reemplazar", "Reemplazar por:")
+        if not ok2:
             return
 
-        palabra2, ok2 = QInputDialog.getText(
-            self, "Cambiar", "Por que palabra quieres reemplazarla:")
-        if not palabra2 or not ok2:
-            return
-
-        if self.texto.find(palabra):
-            self.operaciones.setText("Reemplazado ✅")
-            self.barraEstado.showMessage(f"'{palabra}' → '{palabra2}'", 3000)
-        else:
-            self.operaciones.setText(
-                "Insertado ✍️ (no se encontró coincidencia)")
-            self.barraEstado.showMessage(
-                f"No se encontró '{palabra}', se insertó '{palabra2}'", 3000)
+        # Intenta desde la posición actual; si no, desde el inicio
+        if not self.texto.find(palabra):
+            self.texto.moveCursor(QTextCursor.MoveOperation.Start)
+            if not self.texto.find(palabra):
+                self.operaciones.setText(f"No encontrado ❌ '{palabra}'")
+                self.barraEstado.showMessage(
+                    f"'{palabra}' no encontrado", 3000)
+                return
+        cursor = self.texto.textCursor()
+        cursor.insertText(nueva)
+        self.texto.setTextCursor(cursor)
+        self.operaciones.setText("Reemplazado ✅")
+        self.barraEstado.showMessage(f"'{palabra}' → '{nueva}'", 3000)
 
     def cambiar_color_fondo(self):
         color = QColorDialog.getColor(
             parent=self, title="Elegir color de fondo")
         if not color.isValid():
-            QMessageBox().information("Color no válido")
+            QMessageBox.information(
+                self, "Color no válido", "Selecciona un color válido.")
             return
         self.texto.setStyleSheet(f"background-color: {color.name()};")
         self.operaciones.setText("Fondo cambiado 🎨")
@@ -332,9 +433,9 @@ class Ventana (QMainWindow):
         self.barraEstado.showMessage(f"Nuevo color: {color.name()}", 3000)
 
     def cambiarFuente(self):
-
-        fuente = QFontDialog.getFont(
-            parent=self)
+        fuente, ok = QFontDialog.getFont(parent=self)
+        if not ok:
+            return
 
         cursor = QTextCursor()
 
@@ -350,30 +451,112 @@ class Ventana (QMainWindow):
         self.barraEstado.showMessage(f"Fuente: {fuente.name()}", 3000)
 
     def buscarTodas(self):
-
         palabra, ok = QInputDialog.getText(
             self, "Buscar todas", "Palabra a buscar:")
         if not ok or not palabra:
             return
 
-        cursor = self.texto.textCursor()
+        # Guardar cursor actual y preparar selecciones sin modificar el documento
+        original = self.texto.textCursor()
         self.texto.moveCursor(QTextCursor.Start)
 
-        formato_base = QTextCharFormat()
-        formato_base.setBackground(Qt.transparent)
-        self.texto.mergeCurrentCharFormat(formato_base)
-
-        formato_encontrado = QTextCharFormat()
-        formato_encontrado.setBackground(Qt.yellow)
-
-        # Buscar todas las ocurrencias
+        selecciones = []
+        contador = 0
         while self.texto.find(palabra):
             cursor = self.texto.textCursor()
-            cursor.mergeCharFormat(formato_encontrado)
 
-        self.operaciones.setText(f"Palabras '{palabra}' resaltadas 🟡")
-        self.barraEstado.showMessage(
-            f"Todas las ocurrencias de '{palabra}' destacadas", 3000)
+            sel = QTextEdit.ExtraSelection()
+            sel.cursor = cursor
+            # Usar colores de selección del sistema para que parezca selección real
+            sel.format.setBackground(self.texto.palette().highlight())
+            sel.format.setForeground(self.texto.palette().highlightedText())
+            selecciones.append(sel)
+            contador += 1
+
+        self.texto.setExtraSelections(selecciones)
+        self.texto.setTextCursor(original)
+
+        if contador == 0:
+            self.operaciones.setText(f"No encontrado ❌ '{palabra}'")
+            self.barraEstado.showMessage(
+                f"No hubo coincidencias de '{palabra}'", 3000)
+        else:
+            self.operaciones.setText(
+                f"Coincidencias seleccionadas: {contador} 🔎")
+            self.barraEstado.showMessage(
+                f"Seleccionadas {contador} ocurrencias de '{palabra}'", 3000)
+        # Guardar y reflejar término en panel
+        self.ultimaBusqueda = palabra
+        if hasattr(self, 'busquedaPanelPanel'):
+            self.busquedaPanel.setText(palabra)
+
+    def mostrarPanelBuscar(self):
+        if (self.buscarOpciones.isVisible()):
+            self.buscarOpciones.hide()
+        else:
+            self.buscarOpciones.show()
+
+    def mostrarPanelReemplazar(self):
+        if self.reemplazarOpciones.isVisible():
+            self.reemplazarOpciones.hide()
+        else:
+            self.reemplazarOpciones.show()
+
+    def reemplazarSiguiente(self):
+        palabra = self.busquedaPanel.text()
+        nueva = self.inpReemplazar.text()
+        if not palabra:
+            self.barraEstado.showMessage("Introduce el texto a buscar", 2000)
+            return
+
+        if not self.texto.find(palabra):
+            self.texto.moveCursor(QTextCursor.MoveOperation.Start)
+            if not self.texto.find(palabra):
+                self.operaciones.setText(f"No encontrado ❌ '{palabra}'")
+                self.barraEstado.showMessage(
+                    f"'{palabra}' no encontrado", 3000)
+                return
+
+        cursor = self.texto.textCursor()
+        cursor.insertText(nueva)
+        self.texto.setTextCursor(cursor)
+        self.operaciones.setText("Reemplazado ✅")
+        self.barraEstado.showMessage(f"'{palabra}' → '{nueva}'", 3000)
+
+    def reemplazarTodos(self):
+        palabra = self.buscarPanel.text()
+        nueva = self.inpReemplazar.text()
+        if not palabra:
+            self.barraEstado.showMessage("Introduce el texto a buscar", 2000)
+            return
+
+        self.texto.moveCursor(QTextCursor.MoveOperation.Start)
+        contador = 0
+        while self.texto.find(palabra):
+            cursor = self.texto.textCursor()
+            cursor.insertText(nueva)
+            contador += 1
+
+        if contador == 0:
+            self.operaciones.setText(f"No encontrado ❌ '{palabra}'")
+            self.barraEstado.showMessage(
+                f"No hubo coincidencias de '{palabra}'", 3000)
+        else:
+            self.operaciones.setText(f"Reemplazos realizados: {contador} ✅")
+            self.barraEstado.showMessage(
+                f"Se reemplazaron {contador} ocurrencias de '{palabra}'", 3000)
+
+    def actualizaBusqueda(self, texto: str):
+        print()
+
+    def _obtenerTerminoBusqueda(self):
+        print()
+
+    def siguientePalabra(self):
+        print()
+
+    def anteriorPalabra(self):
+        print()
 
 
 app = QApplication()
