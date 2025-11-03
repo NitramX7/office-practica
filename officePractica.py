@@ -13,261 +13,16 @@ from PySide6.QtWidgets import (
     QStatusBar,
     QWidget,
     QLabel,
-    QHBoxLayout
+    QHBoxLayout,
+    QDockWidget,
+    QVBoxLayout,
+    QPushButton
 
 
 
 )
 from PySide6.QtGui import QAction, QIcon, Qt, QKeySequence, QTextCursor, QTextDocument, QTextCharFormat
 import os
-
-
-# class Ventana (QMainWindow):
-#     def __init__(self):
-#         super().__init__()
-
-#         self.texto = QTextEdit()
-#         self.setCentralWidget(self.texto)
-
-#         self.barraTarea = QToolBar()
-#         self.addToolBar(self.barraTarea)
-
-#         self.barraEstado = QStatusBar()
-#         self.setStatusBar(self.barraEstado)
-
-#         # LADO IZQUIERDO
-#         self.palabrasContador = QLabel()
-#         leftBox = QWidget()
-#         leftLay = QHBoxLayout(leftBox)
-#         leftLay.setContentsMargins(0, 0, 0, 0)
-#         leftLay.setSpacing(8)
-#         leftLay.addWidget(self.palabrasContador)
-
-#         # LADO DERECHO
-#         self.operaciones = QLabel()
-
-#         rightBox = QWidget()
-#         rightLay = QHBoxLayout(rightBox)
-#         rightLay.setContentsMargins(0, 0, 0, 0)
-#         rightLay.setSpacing(8)
-#         rightLay.addWidget(self.operaciones)
-
-#         self.barraEstado.addWidget(rightBox, 1)
-#         self.barraEstado.addPermanentWidget(leftBox)
-
-#         # MENU ARCHIVO Y SUS FUNCIONES
-#         self.barraMenus = self.menuBar()
-#         menuArchivo = self.barraMenus.addMenu("&Archivo")
-#         menuEditar = self.barraMenus.addMenu("&Editar")
-#         menuEstilo = self.barraMenus.addMenu("&Estilo")
-
-#         self.accionNuevo = QAction("Nuevo", self)
-#         self.accionNuevo.setShortcut(QKeySequence("Ctrl+N"))
-#         self.accionNuevo.triggered.connect(self.nuevo)
-
-#         self.accionAbrir = QAction("Abrir")
-#         self.accionAbrir.setShortcut(QKeySequence("Ctrl+O"))
-#         self.accionAbrir.triggered.connect(self.abrir)
-
-#         self.accionGuardar = QAction("Guardar")
-#         self.accionGuardar.setShortcut(QKeySequence("Ctrl+S"))
-#         self.accionGuardar.triggered.connect(self.guardar)
-
-#         self.accionSalir = QAction("Salir")
-#         self.accionSalir.setShortcut(QKeySequence("Ctrl+Q"))
-#         self.accionSalir.triggered.connect(self.salir)
-
-#         menuArchivo.addActions([
-#             self.accionNuevo,
-#             self.accionAbrir,
-#             self.accionGuardar,
-#             self.accionSalir
-#         ])
-
-#         # MENU EDITAR Y SUS FUNCIONES
-
-#         self.accionDeshacer = QAction("Deshacer", self)
-#         self.accionDeshacer.setShortcut(QKeySequence("Ctrl+Z"))
-#         self.accionDeshacer.triggered.connect(self.deshacer)
-
-#         self.accionRehacer = QAction("Rehacer", self)
-#         self.accionRehacer.setShortcut(QKeySequence("Ctrl+Y"))
-#         self.accionRehacer.triggered.connect(self.rehacer)
-
-#         self.accionCopiar = QAction("Copiar", self)
-#         self.accionCopiar.setShortcut(QKeySequence("Ctrl+C"))
-#         self.accionCopiar.triggered.connect(self.copiar)
-
-#         self.accionCortar = QAction("Cortar", self)
-#         self.accionCortar.setShortcut(QKeySequence("Ctrl+X"))
-#         self.accionCortar.triggered.connect(self.cortar)
-
-#         self.accionPegar = QAction("Pegar", self)
-#         self.accionPegar.setShortcut(QKeySequence("Ctrl+V"))
-#         self.accionPegar.triggered.connect(self.pegar)
-
-#         menuEditar.addActions([
-#             self.accionDeshacer,
-#             self.accionRehacer,
-#             self.accionCopiar,
-#             self.accionCortar,
-#             self.accionPegar
-#         ])
-
-#         self.accionColorFondo = QAction("Cambiar fondo color", self)
-#         self.accionColorFondo.triggered.connect(self.cambiar_color_fondo)
-
-#         self.accionColorFuente = QAction("Cambiar fuente color", self)
-#         self.accionColorFuente.triggered.connect(self.cambiar_color_fuente)
-
-#         # MENU DE ESTILO
-#         menuEstilo.addActions([
-#             self.accionColorFondo,
-#             self.accionColorFuente
-
-#         ])
-
-#         self.texto.textChanged.connect(self.actualizar_contador)
-
-#         self.accionBuscar = QAction("Buscar", self)
-#         self.accionBuscar.setShortcut(QKeySequence("Ctrl+F"))
-#         self.accionBuscar.triggered.connect(self.buscar)
-
-#         self.accionReemplazar = QAction("Reemplazar", self)
-#         self.accionReemplazar.setShortcut(QKeySequence("Ctrl+R"))
-#         self.accionReemplazar.triggered.connect(self.reemplazar)
-
-#         self.barraTarea.addActions([
-
-#             self.accionNuevo,
-#             self.accionAbrir,
-#             self.accionGuardar,
-#             self.accionSalir,
-#             self.accionDeshacer,
-#             self.accionRehacer,
-#             self.accionCopiar,
-#             self.accionCortar,
-#             self.accionPegar,
-#             self.accionBuscar,
-#             self.accionReemplazar
-
-#         ])
-
-#     def nuevo(self):
-#         self.texto.clear()
-
-#     def actualizar_contador(self):
-
-#         texto = self.texto.toPlainText()
-#         palabras = texto.split()
-#         contador = len(palabras)
-
-#         self.palabrasContador.setText(f"Palabras: ${contador}")
-
-#     def abrir(self):
-
-#         ruta, filtro = QFileDialog().getOpenFileName(
-#             self, "Abrir archivo", "", "Todos los archivos(*)")
-#         if not ruta or not filtro:
-#             return
-
-#         with open(ruta, "r", encoding="utf-8") as f:
-#             contenido = f.read()
-#             self.texto.setText(contenido)
-
-#         self.operaciones.setText("Abierto con exito✅")
-
-#     def guardar(self):
-
-#         ruta, filtro = QFileDialog().getSaveFileName(
-#             self, "Guardar archivo", "", "Todos los archivos(*)"
-#         )
-
-#         if not ruta or not filtro:
-#             return
-
-#         with open(ruta, "w", encoding="utf-8") as f:
-#             f.write(self.texto.toPlainText())
-
-#     def salir(self):
-#         self.close()
-
-#     def deshacer(self):
-
-#         self.texto.undo()
-
-#     def rehacer(self):
-#         self.texto.redo()
-
-#     def copiar(self):
-
-#         self.texto.copy()
-
-#     def cortar(self):
-#         self.texto.cut()
-
-#     def pegar(self):
-
-#         self.texto.paste()
-
-#     def buscar(self):
-
-#         self.texto.moveCursor(QTextCursor.MoveOperation.Start)
-
-#         palabra, ok = QInputDialog.getText(
-#             self, "Buscar", "Introduce la palabra a buscar:")
-#         if not palabra or not ok:
-#             return
-
-#         encontrado = self.texto.find(palabra)
-#         if not encontrado:
-#             self.barraEstado.showMessage(f"'{palabra}' no encontrado")
-#         else:
-#             self.barraEstado.showMessage(f"Buscando: '{palabra}'")
-
-#     def reemplazar(self):
-#         self.texto.moveCursor(QTextCursor.MoveOperation.Start)
-
-#         palabra, ok = QInputDialog.getText(
-#             self, "Buscar", "Que palabra quieres reemplazar:")
-#         if not palabra or not ok:
-#             return
-
-#         palabra2, ok2 = QInputDialog.getText(
-#             self, "Cambiar", "Por que palabra quieres reemplazarla:")
-#         if not palabra2 or not ok2:
-#             return
-
-#         if self.texto.find(palabra):
-#             self.texto.textCursor().insertText(palabra2)
-#             self.barraEstado.showMessage("Reemplazado 1")
-#         else:
-#             self.barraEstado.showMessage(f"'{palabra}' no encontrado")
-#             self.texto.textCursor().insertText(palabra2)
-
-#     def cambiar_color_fondo(self):
-#         color = QColorDialog.getColor(
-#             parent=self, title="Elegir color de fondo")
-#         if not color.isValid():
-#             QMessageBox().information("Color no válido")
-#             return
-#         self.texto.setStyleSheet(f"background-color: {color.name()};")
-
-#         from PySide6.QtWidgets import (
-#             QApplication,
-#             QMainWindow,
-#             QInputDialog,
-#             QToolBar,
-#             QMenu,
-#             QTextEdit,
-#             QWhatsThis,
-#             QFileDialog,
-#             QColorDialog,
-#             QFontDialog,
-#             QMessageBox
-
-
-#         )
 
 
 class Ventana (QMainWindow):
@@ -289,6 +44,22 @@ class Ventana (QMainWindow):
         rightLay = QHBoxLayout(rightBox)
         rightLay.setContentsMargins(0, 0, 0, 0)
         rightLay.addWidget(self.operaciones)
+
+        self.buscarOpciones = QDockWidget("Buscar")
+        self.buscarOpciones.setAllowedAreas(Qt.RightDockWidgetArea)
+        self.reemplazarOpciones = QDockWidget("Reemplazar")
+
+        self.btnBuscar = QPushButton("Buscar una palabra")
+        self.btnBuscarTodas = QPushButton("Buscar todas las palabras")
+        self.contenedorBuscar = QWidget()
+
+        self.buscarOpciones.setWidget(self.contenedorBuscar)
+
+        self.layout = QVBoxLayout(self.contenedorBuscar)
+        self.layout.addWidget(self.btnBuscar)
+        self.layout.addWidget(self.btnBuscarTodas)
+
+        self.addDockWidget(Qt.RightDockWidgetArea, self.buscarOpciones)
 
         # Izquierda: contador (elástico)
         self.palabrasContador = QLabel("Palabras: 0")
@@ -366,10 +137,14 @@ class Ventana (QMainWindow):
         self.accionColorFuente = QAction("Cambiar fuente color", self)
         self.accionColorFuente.triggered.connect(self.cambiar_color_fuente)
 
+        self.accionFuente = QAction("Cambiar fuente", self)
+        self.accionFuente.triggered.connect(self.cambiarFuente)
+
         # MENU DE ESTILO
         menuEstilo.addActions([
             self.accionColorFondo,
-            self.accionColorFuente
+            self.accionColorFuente,
+            self.accionFuente
 
         ])
 
@@ -383,6 +158,10 @@ class Ventana (QMainWindow):
         self.accionReemplazar.setShortcut(QKeySequence("Ctrl+R"))
         self.accionReemplazar.triggered.connect(self.reemplazar)
 
+        self.accionPanelBuscar = QAction("Mostrar panel de busqueda")
+        self.accionPanelBuscar.triggered.connect(
+            self.buscarOpciones.setVisible)
+
         self.barraTarea.addActions([
 
             self.accionNuevo,
@@ -394,7 +173,7 @@ class Ventana (QMainWindow):
             self.accionCopiar,
             self.accionCortar,
             self.accionPegar,
-            self.accionBuscar,
+            self.accionPanelBuscar,
             self.accionReemplazar
 
         ])
@@ -551,6 +330,50 @@ class Ventana (QMainWindow):
         self.texto.setTextCursor(cursor)
         self.operaciones.setText("Color de fuente cambiado 🖌️")
         self.barraEstado.showMessage(f"Nuevo color: {color.name()}", 3000)
+
+    def cambiarFuente(self):
+
+        fuente = QFontDialog.getFont(
+            parent=self)
+
+        cursor = QTextCursor()
+
+        if not cursor.hasSelection():
+            cursor.select(QTextCursor.Document)
+            self.texto.setTextCursor(cursor)
+
+        fmt = QTextCharFormat()
+        fmt.setFont(fuente)
+
+        self.texto.setCurrentCharFormat(fmt)
+        self.operaciones.setText("Fuente cambiada 🖌️")
+        self.barraEstado.showMessage(f"Fuente: {fuente.name()}", 3000)
+
+    def buscarTodas(self):
+
+        palabra, ok = QInputDialog.getText(
+            self, "Buscar todas", "Palabra a buscar:")
+        if not ok or not palabra:
+            return
+
+        cursor = self.texto.textCursor()
+        self.texto.moveCursor(QTextCursor.Start)
+
+        formato_base = QTextCharFormat()
+        formato_base.setBackground(Qt.transparent)
+        self.texto.mergeCurrentCharFormat(formato_base)
+
+        formato_encontrado = QTextCharFormat()
+        formato_encontrado.setBackground(Qt.yellow)
+
+        # Buscar todas las ocurrencias
+        while self.texto.find(palabra):
+            cursor = self.texto.textCursor()
+            cursor.mergeCharFormat(formato_encontrado)
+
+        self.operaciones.setText(f"Palabras '{palabra}' resaltadas 🟡")
+        self.barraEstado.showMessage(
+            f"Todas las ocurrencias de '{palabra}' destacadas", 3000)
 
 
 app = QApplication()
