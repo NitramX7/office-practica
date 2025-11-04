@@ -30,7 +30,8 @@ class Ventana (QMainWindow):
     def __init__(self):
         super().__init__()
 
-        base_dir = os.path.dirname(os.path.abspath(__file__))
+        base_dir = os.path.join(os.path.dirname(
+            os.path.abspath(__file__)), "imagenes")
 
         icon_nuevo = QIcon(os.path.join(base_dir, "nuevo.png"))
         icon_abrir = QIcon(os.path.join(base_dir, "abrir.png"))
@@ -547,16 +548,70 @@ class Ventana (QMainWindow):
                 f"Se reemplazaron {contador} ocurrencias de '{palabra}'", 3000)
 
     def actualizaBusqueda(self, texto: str):
-        print()
+
+        if not texto:
+            self.texto.setExtraSelections([])
+            return
+        self.ultimaBusqueda = texto
+        self._resaltarCoincidencias(texto)
 
     def _obtenerTerminoBusqueda(self):
-        print()
+
+        termino = self.buscarPanel.text().strip()
+        if termino:
+            return termino
 
     def siguientePalabra(self):
-        print()
+        termino = self._obtenerTerminoBusqueda()
+        if not termino:
+            self.barraEstado.showMessage("Introduce el texto a buscar", 2000)
+            return
+        if not self.texto.find(termino):
+
+            self.texto.moveCursor(QTextCursor.MoveOperation.Start)
+            if not self.texto.find(termino):
+                self.operaciones.setText(f"No encontrado ? '{termino}'")
+                self.barraEstado.showMessage(
+                    f"'{termino}' no encontrado", 3000)
+                return
+        self.ultimaBusqueda = termino
 
     def anteriorPalabra(self):
-        print()
+        termino = self._obtenerTerminoBusqueda()
+        if not termino:
+            self.barraEstado.showMessage("Introduce el texto a buscar", 2000)
+            return
+        if not self.texto.find(termino, QTextDocument.FindBackward):
+
+            self.texto.moveCursor(QTextCursor.MoveOperation.End)
+            if not self.texto.find(termino, QTextDocument.FindBackward):
+                self.operaciones.setText(f"No encontrado ? '{termino}'")
+                self.barraEstado.showMessage(
+                    f"'{termino}' no encontrado", 3000)
+                return
+        self.ultimaBusqueda = termino
+
+    def _resaltarCoincidencias(self, palabra):
+
+        if not palabra:
+            self.texto.setExtraSelections([])
+            return 0
+
+        original = self.texto.textCursor()
+        self.texto.moveCursor(QTextCursor.Start)
+
+        selecciones = []
+        contador = 0
+        while self.texto.find(palabra):
+            cursor = self.texto.textCursor()
+            sel = QTextEdit.ExtraSelection()
+            sel.cursor = cursor
+
+            contador += 1
+
+        self.texto.setExtraSelections(selecciones)
+        self.texto.setTextCursor(original)
+        return contador
 
 
 app = QApplication()
