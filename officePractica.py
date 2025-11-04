@@ -30,6 +30,17 @@ class Ventana (QMainWindow):
     def __init__(self):
         super().__init__()
 
+        self.setStyleSheet("""
+            QMainWindow { background-color: #f0f0f0; color: #000000; }
+            QTextEdit { background-color: white; color: #000000; border: 1px solid #ccc; border-radius: 4px; }
+            QMenuBar, QMenu, QToolBar, QStatusBar { background-color: #eaeaea; color: #000000; }
+            QToolButton, QLabel, QAction, QMenu::item { color: #000000; }
+            QPushButton { background-color: #f5f5f5; color: black; border: 1px solid #ccc; border-radius: 4px; padding: 4px; }
+            QPushButton:hover { background-color: #ddd; }
+            QDockWidget, QToolBar, QStatusBar { border: 1px solid #ccc; }
+            QDockWidget::title { background-color: #eaeaea; color: #000000; padding: 4px; border-bottom: 1px solid #ccc; }
+        """)
+
         base_dir = os.path.join(os.path.dirname(
             os.path.abspath(__file__)), "imagenes")
 
@@ -142,6 +153,11 @@ class Ventana (QMainWindow):
         menuEditar = self.barraMenus.addMenu("&Editar")
         menuEstilo = self.barraMenus.addMenu("&Estilo")
 
+        # Modo oscuro (estado y acción)
+        self._modo_oscuro = False
+        self.accionModoOscuro = QAction("Modo oscuro", self)
+        self.accionModoOscuro.triggered.connect(self.toggle_modo_oscuro)
+
         self.accionNuevo = QAction("Nuevo", self)
         self.accionNuevo.setShortcut(QKeySequence("Ctrl+N"))
         self.accionNuevo.triggered.connect(self.nuevo)
@@ -217,7 +233,8 @@ class Ventana (QMainWindow):
         menuEstilo.addActions([
             self.accionColorFondo,
             self.accionColorFuente,
-            self.accionFuente
+            self.accionFuente,
+            self.accionModoOscuro
 
         ])
 
@@ -300,7 +317,7 @@ class Ventana (QMainWindow):
         self.barraEstado.showMessage(
             f"Abriste: {os.path.basename(ruta)}", 3000)
 
-    def guardar(self, flags):
+    def guardar(self):
 
         ruta, filtro = QFileDialog().getSaveFileName(
             self, "Guardar archivo", "", "Todos los archivos(*)"
@@ -457,7 +474,6 @@ class Ventana (QMainWindow):
         if not ok or not palabra:
             return
 
-        # Guardar cursor actual y preparar selecciones sin modificar el documento
         original = self.texto.textCursor()
         self.texto.moveCursor(QTextCursor.Start)
 
@@ -591,27 +607,59 @@ class Ventana (QMainWindow):
                 return
         self.ultimaBusqueda = termino
 
-    def _resaltarCoincidencias(self, palabra):
+    # def _resaltarCoincidencias(self, palabra):
 
-        if not palabra:
-            self.texto.setExtraSelections([])
-            return 0
+    #     if not palabra:
+    #         self.texto.setExtraSelections([])
+    #         return 0
 
-        original = self.texto.textCursor()
-        self.texto.moveCursor(QTextCursor.Start)
+    #     original = self.texto.textCursor()
+    #     self.texto.moveCursor(QTextCursor.Start)
 
-        selecciones = []
-        contador = 0
-        while self.texto.find(palabra):
-            cursor = self.texto.textCursor()
-            sel = QTextEdit.ExtraSelection()
-            sel.cursor = cursor
+    #     selecciones = []
+    #     contador = 0
+    #     while self.texto.find(palabra):
+    #         cursor = self.texto.textCursor()
+    #         sel = QTextEdit.ExtraSelection()
+    #         sel.cursor = cursor
 
-            contador += 1
+    #         contador += 1
 
-        self.texto.setExtraSelections(selecciones)
-        self.texto.setTextCursor(original)
-        return contador
+    #     self.texto.setExtraSelections(selecciones)
+    #     self.texto.setTextCursor(original)
+    #     return contador
+
+    def toggle_modo_oscuro(self):
+        if getattr(self, "_modo_oscuro", False):
+            # 🔆 VOLVER A MODO CLARO
+            self.setStyleSheet("""
+                QMainWindow { background-color: #f0f0f0; color: #000000; }
+                QTextEdit { background-color: white; color: #000000; border: 1px solid #ccc; border-radius: 4px; }
+                QMenuBar, QMenu, QToolBar, QStatusBar { background-color: #eaeaea; color: #000000; }
+                QToolButton, QLabel, QAction, QMenu::item { color: #000000; }
+                QPushButton { background-color: #f5f5f5; color: black; border: 1px solid #ccc; border-radius: 4px; padding: 4px; }
+                QPushButton:hover { background-color: #ddd; }
+                QDockWidget, QToolBar, QStatusBar { border: 1px solid #ccc; }
+                QDockWidget::title { background-color: #eaeaea; color: #000000; padding: 4px; border-bottom: 1px solid #ccc; }
+            """)
+            self._modo_oscuro = False
+            self.operaciones.setText("Modo claro ☀️")
+            self.barraEstado.showMessage("Modo claro activado", 2000)
+
+        else:
+            # 🌙 ACTIVAR MODO OSCURO
+            self.setStyleSheet("""
+                QMainWindow { background-color: #2b2b2b; color: #f0f0f0; }
+                QTextEdit { background-color: #3b3b3b; color: #f0f0f0; border: 1px solid #555; border-radius: 4px; }
+                QMenuBar, QMenu, QToolBar, QStatusBar { background-color: #2b2b2b; color: #f0f0f0; }
+                QPushButton { background-color: #555; color: white; border-radius: 4px; padding: 4px; }
+                QPushButton:hover { background-color: #777; }
+                QDockWidget, QToolBar, QStatusBar { border: 1px solid #444; }
+                QDockWidget::title { background-color: #333; color: #f0f0f0; padding: 4px; border-bottom: 1px solid #555; }
+            """)
+            self._modo_oscuro = True
+            self.operaciones.setText("Modo oscuro 🌙")
+            self.barraEstado.showMessage("Modo oscuro activado", 2000)
 
 
 app = QApplication()
