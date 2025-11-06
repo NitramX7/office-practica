@@ -451,22 +451,24 @@ class Ventana (QMainWindow):
         self.barraEstado.showMessage(f"Nuevo color: {color.name()}", 3000)
 
     def cambiarFuente(self):
-        fuente, ok = QFontDialog.getFont(parent=self)
+        ok, fuente = QFontDialog.getFont(parent=self)
         if not ok:
             return
 
         cursor = QTextCursor()
 
-        if not cursor.hasSelection():
-            cursor.select(QTextCursor.Document)
-            self.texto.setTextCursor(cursor)
+        # if not cursor.hasSelection():
+        #     cursor.select(QTextCursor.Document)
+        #     self.texto.setTextCursor(cursor)
 
         fmt = QTextCharFormat()
         fmt.setFont(fuente)
 
         self.texto.setCurrentCharFormat(fmt)
         self.operaciones.setText("Fuente cambiada 🖌️")
-        self.barraEstado.showMessage(f"Fuente: {fuente.name()}", 3000)
+        # self.barraEstado.showMessage(f"Fuente: {fuente.name()}", 3000)
+
+        cursor.clearSelection()
 
     def buscarTodas(self):
         palabra = self._obtenerPalabraBusqueda()
