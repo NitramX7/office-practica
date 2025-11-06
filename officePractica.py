@@ -469,27 +469,36 @@ class Ventana (QMainWindow):
         self.barraEstado.showMessage(f"Fuente: {fuente.name()}", 3000)
 
     def buscarTodas(self):
+        palabra = self._obtenerPalabraBusqueda()
+        if not palabra:
+            self.texto.setExtraSelections([])
+            self.operaciones.setText("Introduce el texto a buscar")
+            self.barraEstado.showMessage("Introduce el texto a buscar", 2000)
+            return
 
-        palabra = self._obtenerpalabraBusqueda()
-
-        original = self.texto.textCursor()
-        self.texto.moveCursor(QTextCursor.Start)
-
+        doc = self.texto.document()
         selecciones = []
         contador = 0
-        while self.texto.find(palabra):
-            cursor = self.texto.textCursor()
+        pos = 0
+
+        highlight_bg = self.texto.palette().highlight()
+        highlight_fg = self.texto.palette().highlightedText()
+
+        while True:
+            cursor = doc.find(palabra, pos)
+            if cursor.isNull():
+                break
 
             sel = QTextEdit.ExtraSelection()
             sel.cursor = cursor
-            # Usar colores de selección del sistema para que parezca selección real
-            sel.format.setBackground(self.texto.palette().highlight())
-            sel.format.setForeground(self.texto.palette().highlightedText())
+            sel.format.setBackground(highlight_bg)
+            sel.format.setForeground(highlight_fg)
             selecciones.append(sel)
+
+            pos = cursor.selectionEnd()
             contador += 1
 
         self.texto.setExtraSelections(selecciones)
-        self.texto.setTextCursor(original)
 
         if contador == 0:
             self.operaciones.setText(f"No encontrado ❌ '{palabra}'")
@@ -499,10 +508,11 @@ class Ventana (QMainWindow):
             self.operaciones.setText(
                 f"Coincidencias seleccionadas: {contador} 🔎")
             self.barraEstado.showMessage(
-                f"Seleccionadas {contador} ocurrencias de '{palabra}'", 3000)
-        # Guardar y reflejar término en panel
+                f"Seleccionadas {contador} ocurrencias de '{palabra}'", 3000
+            )
+
         self.ultimaBusqueda = palabra
-        if hasattr(self, 'busquedaPanelPanel'):
+        if hasattr(self, 'busquedaPanel'):
             self.busquedaPanel.setText(palabra)
 
     def mostrarPanelBuscar(self):
