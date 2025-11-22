@@ -24,6 +24,7 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtGui import QAction, QIcon, Qt, QKeySequence, QTextCursor, QTextDocument, QTextCharFormat
 import os
+import sys
 
 
 class Ventana (QMainWindow):
@@ -55,6 +56,9 @@ class Ventana (QMainWindow):
         icon_pegar = QIcon(os.path.join(base_dir, "pegar.png"))
         icon_panel_buscar = QIcon(os.path.join(base_dir, "buscar.png"))
         icon_reemplazar = QIcon(os.path.join(base_dir, "reemplazar.png"))
+
+        self.setWindowIcon(QIcon(os.path.join(os.path.dirname(
+            __file__), "imagenes/iconoApp.ico")))
 
         self.texto = QTextEdit()
         self.setCentralWidget(self.texto)
