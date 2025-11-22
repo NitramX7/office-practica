@@ -148,3 +148,20 @@ Modo oscuro para darle un toque más actual.
 Mensajes contextuales en la barra de estado.
 
 Íconos personalizados cargados desde una carpeta imagenes.
+## Pasos para generar el ejecutable (con capturas)
+
+1. Instalar `pipx` para aislar herramientas de CLI: `python -m pip install --user pipx`  
+   ![Instalar pipx](./1.png)
+2. Asegurar que `pipx` quede en el PATH: `python -m pipx ensurepath`  
+   ![Añadir pipx al PATH](./2.png)
+3. Instalar `pipenv` con `pipx`: `pipx install pipenv`  
+   ![Instalar pipenv](./3.png)
+4. Crear el entorno virtual con Python 3.13: `pipenv --python 3.13`  
+   ![Crear entorno con pipenv](./4.png)
+5. Instalar dependencias para la app y el empaquetado: `pipenv install pyside6 pyinstaller`  
+   ![Instalar PySide6 y PyInstaller](./5.png)
+6. Generar el ejecutable con PyInstaller: `pyinstaller --onefile --noconsole --name "PracticaDeOffice" officePractica.py`  
+   ![Comando de PyInstaller](./6.png)
+
+El ejecutable final aparece en `dist/PracticaDeOffice.exe` junto con los archivos de soporte que PyInstaller copie.
+
