@@ -1,167 +1,127 @@
-# Mini Word 📝
+# Mini Word
 
-Aplicación de escritorio hecha con **Python** y **PySide6** que simula un editor de texto sencillo (tipo bloc de notas mejorado) con búsqueda avanzada, paneles laterales y modo oscuro.
+Aplicacion de escritorio en **Python** y **PySide6** que simula un editor de texto sencillo (bloc de notas mejorado) con busqueda avanzada, paneles laterales y modo oscuro.
 
-## 🧱 Características principales
+## Caracteristicas principales
 
-- **Ventana principal** con título “Mini Word”.
-- **Área de texto central** (`QTextEdit`) para escribir y editar contenido.
-- **Barra de menús**:
-  - **Archivo**: Nuevo, Abrir, Guardar, Salir.
-  - **Editar**: Deshacer, Rehacer, Copiar, Cortar, Pegar.
-  - **Estilo**: Cambiar color de fondo, cambiar color de fuente, cambiar fuente y **Modo oscuro**.
-- **Barra de herramientas** con los botones más usados (nuevo, abrir, guardar, deshacer, rehacer, copiar, cortar, pegar, mostrar panel de búsqueda y mostrar panel de reemplazo).
-- **Barra de estado** con:
-  - contador de palabras en la parte izquierda,
-  - mensajes de acción/opciones en la parte derecha.
+- Ventana principal con el titulo "Mini Word".
+- Area de texto central (`QTextEdit`) para escribir y editar contenido.
+- Barra de menus:
+  - Archivo: Nuevo, Abrir, Guardar, Salir.
+  - Editar: Deshacer, Rehacer, Copiar, Cortar, Pegar.
+  - Estilo: Cambiar color de fondo, cambiar color de fuente, cambiar fuente y modo oscuro.
+- Barra de herramientas con los botones mas usados (nuevo, abrir, guardar, deshacer, rehacer, copiar, cortar, pegar, mostrar panel de busqueda y mostrar panel de reemplazo).
+- Barra de estado con el contador de palabras a la izquierda y mensajes a la derecha.
 
-## 🔍 Búsqueda y reemplazo avanzados
+## Busqueda y reemplazo avanzados
 
-Además del típico `Ctrl+F`, la app tiene **paneles laterales (QDockWidget)** a la derecha para gestionar la búsqueda y el reemplazo sin ventanas emergentes:
+Ademas del tipico `Ctrl+F`, la app tiene paneles laterales (`QDockWidget`) a la derecha para gestionar busqueda y reemplazo sin ventanas emergentes:
 
-- Panel **Buscar**:
-  - escribir el texto a buscar
-  - ir a **siguiente** coincidencia
-  - ir a **anterior** coincidencia
-  - **buscar todas** (resalta todas las coincidencias en el documento)
-- Panel **Reemplazar**:
-  - texto a buscar
-  - texto por el que se reemplaza
-  - **reemplazar siguiente**
-  - **reemplazar todos**
+- Panel Buscar: texto a buscar, siguiente, anterior, buscar todas (resalta coincidencias).
+- Panel Reemplazar: texto a buscar, texto por el que se reemplaza, reemplazar siguiente, reemplazar todos.
 
-Los paneles se pueden mostrar/ocultar desde la barra de herramientas o el menú.
+Los paneles se pueden mostrar u ocultar desde la barra de herramientas o el menu.
 
-## 🎨 Personalización
+## Personalizacion
 
-- Cambiar **color de fondo** del área de texto.
-- Cambiar **color de fuente** del texto.
-- Cambiar **tipo de letra** con un diálogo de fuentes.
-- **Modo oscuro / modo claro** con un solo clic (se cambia el `stylesheet` de toda la ventana).
+- Cambiar color de fondo del area de texto.
+- Cambiar color de fuente del texto.
+- Cambiar tipo de letra con dialogo de fuentes.
+- Modo oscuro / claro con un clic (se cambia el `stylesheet` de toda la ventana).
 
-## 📊 Contador de palabras
+## Contador de palabras
 
-Cada vez que el usuario escribe, en la barra de estado aparece:
+El contador se actualiza con cada `textChanged` y muestra en la barra de estado:
 
 ```text
 Palabras: X
-Se actualiza automáticamente con el evento textChanged.
+```
 
-📁 Gestión de archivos
-Nuevo: limpia el editor.
+## Gestion de archivos
 
-Abrir: abre un archivo de texto desde el disco y lo carga en el QTextEdit.
+- Nuevo: limpia el editor.
+- Abrir: carga un archivo de texto en el `QTextEdit`.
+- Guardar: guarda el contenido actual en disco.
+- Salir: cierra la aplicacion.
 
-Guardar: guarda el contenido actual del editor en un archivo elegido por el usuario.
+## Atajos de teclado
 
-Salir: cierra la aplicación.
+- `Ctrl+N`: Nuevo
+- `Ctrl+O`: Abrir
+- `Ctrl+S`: Guardar
+- `Ctrl+Q`: Salir
+- `Ctrl+Z`: Deshacer
+- `Ctrl+Y`: Rehacer
+- `Ctrl+C`: Copiar
+- `Ctrl+X`: Cortar
+- `Ctrl+V`: Pegar
+- `Ctrl+F`: Buscar
+- `Ctrl+R`: Reemplazar
+- `F3`: Siguiente coincidencia
+- `Shift+F3`: Anterior coincidencia
 
-⌨️ Atajos de teclado
-Ctrl + N → Nuevo
+## Requisitos
 
-Ctrl + O → Abrir
+- Python 3.9+
+- PySide6 (`pip install PySide6`)
 
-Ctrl + S → Guardar
+## Ejecucion
 
-Ctrl + Q → Salir
+1. Coloca el archivo `officePractica.py` en tu proyecto.
+2. Crea una carpeta `imagenes/` al lado del script con los iconos: `nuevo.png`, `abrir.png`, `guardar.png`, `salir.png`, `deshacer.png`, `rehacer.png`, `copiar.png`, `cortar.png`, `pegar.png`, `buscar.png`, `reemplazar.png`.
+3. Ejecuta:  
+   ```bash
+   python officePractica.py
+   ```
 
-Ctrl + Z → Deshacer
+## Estructura del codigo
 
-Ctrl + Y → Rehacer
+- `QMainWindow`: ventana principal.
+- `QTextEdit`: editor central.
+- `QToolBar`: acciones rapidas.
+- `QDockWidget` (Buscar / Reemplazar): paneles laterales de busqueda.
+- `QStatusBar`: mensajes y contador de palabras.
+- Funciones de estilo: cambio de colores, fuentes y modo oscuro.
 
-Ctrl + C → Copiar
+## Funcionalidades extra
 
-Ctrl + X → Cortar
+- Panel de busqueda y reemplazo acoplable a la derecha.
+- Modo oscuro.
+- Mensajes contextuales en la barra de estado.
+- Iconos personalizados cargados desde `imagenes/`.
 
-Ctrl + V → Pegar
-
-Ctrl + F → Buscar
-
-Ctrl + R → Reemplazar
-
-F3 → Siguiente coincidencia
-
-Shift + F3 → Anterior coincidencia
-
-📦 Requisitos
-Python 3.9+ (o similar)
-
-PySide6
-
-Instalación de la dependencia:
-
-bash
-Copiar código
-pip install PySide6
-▶️ Ejecución
-Coloca el archivo .py en tu proyecto.
-
-Crea una carpeta imagenes/ al lado del script con los iconos:
-
-nuevo.png
-
-abrir.png
-
-guardar.png
-
-salir.png
-
-deshacer.png
-
-rehacer.png
-
-copiar.png
-
-cortar.png
-
-pegar.png
-
-buscar.png
-
-reemplazar.png
-
-Ejecuta:
-
-bash
-Copiar código
-python mini_word.py
-(cambia el nombre por el que le hayas puesto al archivo)
-
-🧩 Estructura del código
-Ventana (QMainWindow): clase principal.
-
-QTextEdit central: editor de texto.
-
-QToolBar: acciones rápidas.
-
-QDockWidget (Buscar / Reemplazar): paneles laterales para controlar el comportamiento de búsqueda.
-
-QStatusBar: mensajes + contador de palabras.
-
-Funciones de estilo: cambio de colores, fuentes y modo oscuro.
-
-✅ Funcionalidades extra implementadas
-Panel de búsqueda y reemplazo acoplable a la derecha (mejora lo que pide la práctica).
-
-Modo oscuro para darle un toque más actual.
-
-Mensajes contextuales en la barra de estado.
-
-Íconos personalizados cargados desde una carpeta imagenes.
 ## Pasos para generar el ejecutable (con capturas)
 
-1. Instalar `pipx` para aislar herramientas de CLI: `python -m pip install --user pipx`  
-  ![Instalar pipx](imagenes/1.png)
-2. Asegurar que `pipx` quede en el PATH: `python -m pipx ensurepath`  
-   ![Añadir pipx al PATH](imagenes/2.png)
-3. Instalar `pipenv` con `pipx`: `pipx install pipenv`  
+1. Instalar `pipx` para aislar herramientas de CLI:  
+   `python -m pip install --user pipx`  
+   ![Instalar pipx](imagenes/1.png)
+2. Asegurar que `pipx` queda en el PATH:  
+   `python -m pipx ensurepath`  
+   ![Anadir pipx al PATH](imagenes/2.png)
+3. Instalar `pipenv` con `pipx`:  
+   `pipx install pipenv`  
    ![Instalar pipenv](imagenes/3.png)
-4. Crear el entorno virtual con Python 3.13: `pipenv --python 3.13`  
+4. Crear el entorno virtual con Python 3.13:  
+   `pipenv --python 3.13`  
    ![Crear entorno con pipenv](imagenes/4.png)
-5. Instalar dependencias para la app y el empaquetado: `pipenv install pyside6 pyinstaller`  
+5. Instalar dependencias para la app y el empaquetado:  
+   `pipenv install pyside6 pyinstaller`  
    ![Instalar PySide6 y PyInstaller](imagenes/5.png)
-6. Generar el ejecutable con PyInstaller: `pyinstaller --onefile --noconsole --name "PracticaDeOffice" officePractica.py`  
+6. Generar el ejecutable con PyInstaller desde el entorno:  
+   `pyinstaller --onefile --noconsole --name "PracticaDeOffice" officePractica.py`  
    ![Comando de PyInstaller](imagenes/6.png)
 
-El ejecutable final aparece en `dist/PracticaDeOffice.exe` junto con los archivos de soporte que PyInstaller copie.
+El ejecutable final aparece en `dist/PracticaDeOffice.exe`.
 
+## Crear el instalador (Inno Setup)
+
+1. Asegurate de tener el `dist/PracticaDeOffice.exe` generado por PyInstaller.
+2. Abre `Instalador.iss` en Inno Setup y revisa nombre de app, version, icono (`imagenes/iconoApp.ico`) y licencia (`docs/LICENSE.txt`).  
+   ![Script listo en Inno Setup](imagenes/finscript.png)
+3. Compila el script (Build -> Compile). Inno Setup generara el instalador `Output/MiniOfficeSetup.exe` usando el ejecutable que apuntes en la seccion `[Files]`.  
+   ![Generando el instalador](imagenes/generando%20app.png)
+4. Ejecuta `Output/MiniOfficeSetup.exe` para probar la instalacion de MiniOffice.  
+   ![Instalando la aplicacion](imagenes/instalandoapp.png)
+5. Si cambias la version o el nombre de la app, actualiza `MyAppVersion` y `MyAppName` al inicio de `Instalador.iss` antes de compilar.
+6. Si necesitas incluir archivos extra (p. ej. README o docs), anadelos en la seccion `[Files]` apuntando a su ruta dentro del proyecto.
+7. Puedes personalizar el grupo de accesos directos (seccion `[Icons]`) o desactivar el icono de escritorio editando la tarea `desktopicon` en `[Tasks]`.
