@@ -22,7 +22,7 @@ from PySide6.QtWidgets import (
 
 
 )
-from PySide6.QtGui import QAction, QIcon, Qt, QKeySequence, QTextCursor, QTextDocument, QTextCharFormat
+from PySide6.QtGui import QAction, QIcon, Qt, QKeySequence, QTextCursor, QTextDocument, QTextCharFormat, QFont
 import os
 import sys
 import speech_recognition as sr
@@ -57,6 +57,7 @@ class Ventana (QMainWindow):
         icon_pegar = QIcon(os.path.join(base_dir, "pegar.png"))
         icon_panel_buscar = QIcon(os.path.join(base_dir, "buscar.png"))
         icon_reemplazar = QIcon(os.path.join(base_dir, "reemplazar.png"))
+        icon_voz = QIcon(os.path.join(base_dir, "voz.png"))
 
         self.setWindowIcon(QIcon(os.path.join(os.path.dirname(
             __file__), "imagenes/iconoApp.ico")))
@@ -266,6 +267,10 @@ class Ventana (QMainWindow):
             self.mostrarPanelReemplazar)
         self.accionPanelReemplazar.setIcon(icon_reemplazar)
 
+        self.accionDictarVoz = QAction("Dictar por voz", self)
+        self.accionDictarVoz.triggered.connect(self.dictar_por_voz)
+        self.accionDictarVoz.setIcon(icon_voz)
+
         # Acciones de navegación (atajos)
         self.accionSiguiente = QAction("Siguiente coincidencia", self)
         self.accionSiguiente.setShortcut(QKeySequence("F3"))
@@ -290,7 +295,8 @@ class Ventana (QMainWindow):
             self.accionPegar,
             self.accionPanelBuscar,
             self.accionPanelReemplazar,
-            self.accionReemplazar
+            self.accionReemplazar,
+            self.accionDictarVoz
 
         ])
 
@@ -319,6 +325,78 @@ class Ventana (QMainWindow):
             return ""
         except sr.RequestError:
             return ""
+
+    def dictar_por_voz(self):
+        texto = self.reconocer_voz()
+        self.procesar_texto_de_voz(texto)
+
+    def procesar_texto_de_voz(self, texto):
+        if texto is None:
+            self.operaciones.setText("No se pudo procesar la voz")
+            self.barraEstado.showMessage("Error al reconocer la voz", 2000)
+            return
+        if not texto:
+            self.operaciones.setText("No se escucho nada")
+            self.barraEstado.showMessage("No se detecto audio", 2000)
+            return
+
+        comando = texto.lower().strip()
+
+        if "negrita" in comando:
+            self._toggle_negrita()
+            self.operaciones.setText("Formato: negrita")
+            self.barraEstado.showMessage("Negrita activada/desactivada", 2000)
+            return
+
+        if "cursiva" in comando:
+            self._toggle_cursiva()
+            self.operaciones.setText("Formato: cursiva")
+            self.barraEstado.showMessage("Cursiva activada/desactivada", 2000)
+            return
+
+        if "subrayado" in comando:
+            self._toggle_subrayado()
+            self.operaciones.setText("Formato: subrayado")
+            self.barraEstado.showMessage("Subrayado activado/desactivado", 2000)
+            return
+
+        if "guardar" in comando and "archivo" in comando:
+            self.operaciones.setText("Guardando por voz")
+            self.guardar()
+            return
+
+        if "nuevo" in comando and "documento" in comando:
+            self.operaciones.setText("Nuevo documento por voz")
+            self.nuevo()
+            return
+
+        cursor = self.texto.textCursor()
+        cursor.insertText(texto + " ")
+        self.texto.setTextCursor(cursor)
+        self.operaciones.setText("Texto dictado insertado")
+        self.barraEstado.showMessage("Dictado insertado en el documento", 2000)
+
+    def _toggle_negrita(self):
+        cursor = self.texto.textCursor()
+        fmt = cursor.charFormat()
+        nuevo_peso = QFont.Normal if fmt.fontWeight() == QFont.Bold else QFont.Bold
+        fmt.setFontWeight(nuevo_peso)
+        cursor.mergeCharFormat(fmt)
+        self.texto.mergeCurrentCharFormat(fmt)
+
+    def _toggle_cursiva(self):
+        cursor = self.texto.textCursor()
+        fmt = cursor.charFormat()
+        fmt.setFontItalic(not fmt.fontItalic())
+        cursor.mergeCharFormat(fmt)
+        self.texto.mergeCurrentCharFormat(fmt)
+
+    def _toggle_subrayado(self):
+        cursor = self.texto.textCursor()
+        fmt = cursor.charFormat()
+        fmt.setFontUnderline(not fmt.fontUnderline())
+        cursor.mergeCharFormat(fmt)
+        self.texto.mergeCurrentCharFormat(fmt)
 
     def actualizar_contador(self):
 
