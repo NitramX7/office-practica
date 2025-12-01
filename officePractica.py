@@ -25,6 +25,7 @@ from PySide6.QtWidgets import (
 from PySide6.QtGui import QAction, QIcon, Qt, QKeySequence, QTextCursor, QTextDocument, QTextCharFormat
 import os
 import sys
+import speech_recognition as sr
 
 
 class Ventana (QMainWindow):
@@ -297,6 +298,27 @@ class Ventana (QMainWindow):
         self.texto.clear()
         self.operaciones.setText("Nuevo documento 🆕")
         self.barraEstado.showMessage("Documento nuevo creado", 3000)
+
+    def reconocer_voz(self):
+        recognizer = sr.Recognizer()
+        try:
+            with sr.Microphone() as source:
+                recognizer.adjust_for_ambient_noise(source, duration=0.6)
+                recognizer.pause_threshold = 1.2
+                recognizer.non_speaking_duration = 0.6
+                audio = recognizer.listen(source, timeout=5, phrase_time_limit=10)
+        except sr.WaitTimeoutError:
+            return ""
+        except Exception:
+            return None
+
+        try:
+            texto = recognizer.recognize_google(audio, language="es-ES")
+            return texto.strip()
+        except sr.UnknownValueError:
+            return ""
+        except sr.RequestError:
+            return ""
 
     def actualizar_contador(self):
 
