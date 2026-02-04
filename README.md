@@ -31,11 +31,9 @@ Los paneles se pueden mostrar u ocultar desde la barra de herramientas o el menu
 
 ## Contador de palabras
 
-El contador se actualiza con cada `textChanged` y muestra en la barra de estado:
+Importamos el nuevo modulo de contador de palabras y utilizamos sus funciones que lo que hace es crea un QWidget en el que se almacenan los datos de palabras, caracteres y tiempo de lectura que se recogen con varias expresiones regulares, luego lo que hacemos es que cada vez que se modifique el texto se actualice este contador.
 
-```text
-Palabras: X
-```
+Todos los campos son por defecto invisibles y a medida que se va escribiendo se muestran.
 
 ## Gestion de archivos
 

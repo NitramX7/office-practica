@@ -26,6 +26,7 @@ from PySide6.QtGui import QAction, QIcon, Qt, QKeySequence, QTextCursor, QTextDo
 import os
 import sys
 import speech_recognition as sr
+from contadorPalabras import WordCounterWidget
 
 
 class Ventana (QMainWindow):
@@ -143,11 +144,11 @@ class Ventana (QMainWindow):
         self.reemplazarOpciones.hide()
 
         # Izquierda: contador (elástico)
-        self.palabrasContador = QLabel("Palabras: 0")
+        self.contadorWidget = WordCounterWidget()
         leftBox = QWidget()
         leftLay = QHBoxLayout(leftBox)
         leftLay.setContentsMargins(0, 0, 0, 0)
-        leftLay.addWidget(self.palabrasContador)
+        leftLay.addWidget(self.contadorWidget)
 
         # IZQUIERDA (se expande)
         self.barraEstado.addWidget(leftBox, 1)
@@ -399,12 +400,7 @@ class Ventana (QMainWindow):
         self.texto.mergeCurrentCharFormat(fmt)
 
     def actualizar_contador(self):
-
-        texto = self.texto.toPlainText()
-        palabras = texto.split()
-        contador = len(palabras)
-
-        self.palabrasContador.setText(f"Palabras: {contador}")
+        self.contadorWidget.update_from_text(self.texto.toPlainText())
 
     def abrir(self):
 
